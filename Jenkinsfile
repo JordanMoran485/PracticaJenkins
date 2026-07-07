@@ -2,22 +2,27 @@ pipeline {
     agent any
 
     stages {
+        stage('Verificar acceso a Docker') {
+            steps {
+                sh '''
+                    echo "Comprobando Docker en el agente..."
+                    docker --version || { echo "Docker no está disponible en este agente"; exit 1; }
+                '''
+            }
+        }
+
         stage('Construir Imagen Docker') {
             steps {
-                script {
-                    echo 'Construyendo la imagen con Docker Pipeline'
-                    docker.build('hola-mundo-node:latest')
-                }
+                sh 'docker build -t hola-mundo-node:latest .' 
             }
         }
 
         stage('Ejecutar Contenedor Node.js') {
             steps {
-                script {
-                    def containerName = "hola-mundo-node-${env.BUILD_NUMBER}"
-                    echo "Ejecutando contenedor ${containerName}"
-                    docker.image('hola-mundo-node:latest').run("-d --name ${containerName} -p 3000:3000")
-                }
+                sh '''
+                    docker rm -f hola-mundo-node || true
+                    docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
+                '''
             }
         }
     }
