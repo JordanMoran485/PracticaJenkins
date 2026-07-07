@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Node25" // Conservamos Node ya que este sí se instala correctamente
+        nodejs "Node18" // Conservamos Node ya que este sí se instala correctamente
     }
 
     stages {
