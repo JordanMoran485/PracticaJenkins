@@ -2,6 +2,33 @@ pipeline {
     agent any
 
     stages {
+        stage('Verificar Docker') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            if ! command -v docker >/dev/null 2>&1; then
+                                echo "ERROR: Docker no está disponible en este agente de Jenkins."
+                                echo "Instala Docker en el agente o usa un agente con Docker habilitado."
+                                exit 1
+                            fi
+                            docker --version
+                        '''
+                    } else {
+                        bat '''
+                            where docker >nul 2>nul
+                            if errorlevel 1 (
+                                echo ERROR: Docker no está disponible en este agente de Jenkins.
+                                echo Instala Docker en el agente o usa un agente con Docker habilitado.
+                                exit /b 1
+                            )
+                            docker --version
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Construir Imagen Docker') {
             steps {
                 script {
